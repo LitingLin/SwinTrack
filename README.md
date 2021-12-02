@@ -83,7 +83,7 @@ TrackingNet_PATH: '/path/to/trackingnet'
 COCO_2017_PATH: '/path/to/coco2017'
 ```
 #### Prepare dataset metadata cache (optional)
-Download the metadata cache from [google drive](), and unzip it in ```datasets/cache/```
+Download the metadata cache from [google drive](https://drive.google.com/file/d/12vO2B-eWzP0JAjKG-j4hY97Plx-jhz9C/view?usp=sharing), and unzip it in ```datasets/cache/```
 ```
 datasets
 └── cache
