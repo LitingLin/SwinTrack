@@ -1,0 +1,14 @@
+mixin:
+  fixed:
+    - path: "runs.data.train.source"
+      value: !include "../../../dataset/train_got10k.yaml"
+    - path: "runs.data.test.source"
+      value: !include "../../../dataset/test_got10k.yaml"
+    - path: "runs.runner.test.metrics.handler"
+      value:
+        - type: "test_only"
+          name_regex: "got-10k-test"
+          packer:
+            path: "got10k"
+            format: "got10k"
+        - type: "standard"

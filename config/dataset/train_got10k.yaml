@@ -1,0 +1,22 @@
+filters:
+  DataCleaning:
+    AnnotationStandard:
+      bounding_box_format: "XYXY"
+      pixel_coordinate_system: "HalfPixelOffset"
+      bounding_box_coordinate_system: "Spatial"
+      pixel_definition: "Point"
+    BoundingBox:
+      fit_in_image_size: true
+      update_validity: true
+      remove_invalid_objects: true
+      remove_empty_objects: true
+    Integrity:
+      remove_zero_annotation_objects: true
+      remove_zero_annotation_image: true
+      remove_zero_annotation_video_head_tail: true
+      remove_invalid_image: true
+
+datasets:
+  GOT10k:
+    splits:
+      - "train"

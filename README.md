@@ -96,8 +96,8 @@ datasets
             └── coco2017-nocrowd-train-bcd5bf68d4b87619ab451fe293098401.np
 ```
 
-#### login to wandb
-register an account at [wandb](https://wandb.ai/), then login with command:
+#### Login to wandb
+Register an account at [wandb](https://wandb.ai/), then login with command:
 ```shell
 wandb login
 ```
@@ -144,6 +144,11 @@ python main.py SwinTrack Tiny --mixin_config resnet.yaml
 ./run.sh SwinTrack Tiny --mixin resnet.yaml
 ```
 All available config patches are listed in ```config/SwinTrack/Tiny/mixin```.
+## Train and evaluate with GOT-10k dataset
+```shell
+python main.py SwinTrack Tiny --mixin_config got10k.yaml
+```
+Submit ```$output_dir/test_metrics/got10k/submit/*.zip``` to the [GOT-10k evaluation server](http://got-10k.aitestunion.com/) to get the result of GOT-10k test split.
 ## Evaluate Existing Model
 Download the pretrained model from [google drive](https://drive.google.com/drive/folders/1zPlgAs9D20g04_RWPPgTUg2j0C6A7adJ), then type:
 ```shell
