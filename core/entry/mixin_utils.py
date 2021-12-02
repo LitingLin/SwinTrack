@@ -4,8 +4,9 @@ from miscellanies.yaml_ops import load_yaml
 
 
 def _apply_mixin_rule(rule: dict, config, value, action=None):
-    access_path = rule['path']
+    query_path = rule['path']
 
+    # 'replace' action is the default action
     if action is None:
         if 'action' not in rule:
             action = 'replace'
@@ -13,16 +14,17 @@ def _apply_mixin_rule(rule: dict, config, value, action=None):
             action = rule['action']
 
     if value is None:
+        # fixed static rule
         value = rule['value']
 
-    if action == 'replace':
-        if isinstance(access_path, (list, tuple)):
-            [mod_config(config, sub_access_path, value) for sub_access_path in access_path]
+    if action == 'replace':  # replace the config in path by given value
+        if isinstance(query_path, (list, tuple)):  # multiple paths
+            [mod_config(config, sub_access_path, value) for sub_access_path in query_path]
         else:
-            mod_config(config, access_path, value)
+            mod_config(config, query_path, value)
     elif action == 'insert':
-        if isinstance(access_path, (list, tuple)):
-            for sub_access_path in access_path:
+        if isinstance(query_path, (list, tuple)):
+            for sub_access_path in query_path:
                 config = get_config(config, sub_access_path)
                 if isinstance(value, (list, tuple)):
                     config.extend(value)
@@ -31,7 +33,7 @@ def _apply_mixin_rule(rule: dict, config, value, action=None):
                 else:
                     config.insert(value)
         else:
-            config = get_config(config, access_path)
+            config = get_config(config, query_path)
             if isinstance(value, (list, tuple)):
                 config.extend(value)
             elif isinstance(value, dict):
@@ -39,15 +41,15 @@ def _apply_mixin_rule(rule: dict, config, value, action=None):
             else:
                 config.insert(value)
     elif action == 'include':
-        if isinstance(access_path, (list, tuple)):
-            for sub_access_path in access_path:
+        if isinstance(query_path, (list, tuple)):
+            for sub_access_path in query_path:
                 config = get_config(config, sub_access_path)
                 assert isinstance(config, dict)
                 for key in list(config.keys()):
                     if key != value:
                         del config[key]
         else:
-            config = get_config(config, access_path)
+            config = get_config(config, query_path)
             assert isinstance(config, dict)
             for key in list(config.keys()):
                 if key != value:

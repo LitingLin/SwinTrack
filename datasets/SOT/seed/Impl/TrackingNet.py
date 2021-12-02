@@ -15,7 +15,7 @@ def construct_TrackingNet(constructor: SingleObjectTrackingDatasetConstructor, s
     sequence_name_class_map = {}
 
     if sequence_name_class_map_file_path is None:
-        sequence_name_class_map_file_path = os.path.join(root_path, 'sequence_classes_map.txt')
+        sequence_name_class_map_file_path = os.path.join(os.path.dirname(__file__), 'data_specs', 'trackingnet_sequence_classes_map.txt')
 
     for line in open(sequence_name_class_map_file_path, 'r', encoding='utf-8'):
         line = line.strip()

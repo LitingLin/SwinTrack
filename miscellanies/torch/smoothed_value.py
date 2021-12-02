@@ -1,5 +1,6 @@
 # Copyright (c) Facebook, Inc. and its affiliates. All Rights Reserved
 # https://github.com/facebookresearch/detr/blob/main/util/misc.py
+# https://github.com/pytorch/vision/blob/main/references/detection/utils.py
 import torch
 import torch.distributed as dist
 from miscellanies.torch.distributed import is_dist_available_and_initialized, get_backend

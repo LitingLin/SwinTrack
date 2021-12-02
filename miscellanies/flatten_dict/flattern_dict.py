@@ -1,10 +1,4 @@
-try:
-    from collections.abc import Mapping
-except ImportError:
-    from collections import Mapping
-
-import six
-
+from collections.abc import Mapping
 from .reducers import tuple_reducer, path_reducer, dot_reducer, underscore_reducer
 from .splitters import tuple_splitter, path_splitter, dot_splitter, underscore_splitter
 
@@ -82,7 +76,7 @@ def flatten(
 
     def _flatten(_d, depth, parent=None):
         key_value_iterable = (
-            enumerate(_d) if isinstance(_d, enumerate_types) else six.viewitems(_d)
+            enumerate(_d) if isinstance(_d, enumerate_types) else _d.items()
         )
         has_item = False
         for key, value in key_value_iterable:
@@ -153,7 +147,7 @@ def unflatten(d, splitter="tuple", inverse=False):
         splitter = SPLITTER_DICT[splitter]
 
     unflattened_dict = {}
-    for flat_key, value in six.viewitems(d):
+    for flat_key, value in d.items():
         if inverse:
             flat_key, value = value, flat_key
         key_tuple = splitter(flat_key)

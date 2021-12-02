@@ -8,7 +8,7 @@ from core.run.event_dispatcher.register import EventRegister
 def build_default_training_runner(model, runner_config, data_context, config, event_register: EventRegister):
     num_epochs = config['runs']['num_epochs']
 
-    criterion, loss_composer = build_criteria_and_loss_composer(config, runner_config,
+    criterion, loss_composer = build_criteria_and_loss_composer(config, runner_config, num_epochs,
                                                                 data_context['iterations_per_epoch'],
                                                                 event_register)
 

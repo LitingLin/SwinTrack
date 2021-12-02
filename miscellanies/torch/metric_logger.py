@@ -1,5 +1,6 @@
 # Copyright (c) Facebook, Inc. and its affiliates. All Rights Reserved
 # https://github.com/facebookresearch/detr/blob/main/util/misc.py
+# https://github.com/pytorch/vision/blob/main/references/detection/utils.py
 from collections import defaultdict
 from .smoothed_value import SmoothedValue
 import torch

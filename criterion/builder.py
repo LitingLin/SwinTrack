@@ -80,8 +80,7 @@ def build_multi_scale(loss_parameters, module_path_prefix, head_output_protocol,
     return MultiScaleCriterion(global_data_pre_filter, multi_scale_data_dispatcher, single_scale_criterion)
 
 
-def build_criteria_and_loss_composer(network_config, optimizer_config, iterations_per_epoch, event_register: EventRegister):
-    n_epoch = network_config['runs']['num_epochs']
+def build_criteria_and_loss_composer(network_config, optimizer_config, num_epochs, iterations_per_epoch, event_register: EventRegister):
     loss_parameters = optimizer_config['loss']
     head_output_protocol = network_config['head']['output_protocol']['type']
     if 'multi_scale' in loss_parameters:
@@ -89,5 +88,5 @@ def build_criteria_and_loss_composer(network_config, optimizer_config, iteration
     else:
         loss_module = build_single_scale(loss_parameters, _this_module_prefix, head_output_protocol, network_config, None)
     from .composer.builder import build_loss_composer
-    loss_composer = build_loss_composer(optimizer_config, n_epoch, iterations_per_epoch, event_register)
+    loss_composer = build_loss_composer(optimizer_config, num_epochs, iterations_per_epoch, event_register)
     return loss_module, loss_composer

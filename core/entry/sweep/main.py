@@ -7,7 +7,7 @@ from ..run_id import generate_run_id
 
 def setup_sweep_argparse():
     import argparse
-    arg_parser = argparse.ArgumentParser()
+    arg_parser = argparse.ArgumentParser(description='Hyperparameter tuning script')
     arg_parser.add_argument('method_name', type=str)
     arg_parser.add_argument('config_name', type=str)
     arg_parser.add_argument('--sweep_config', type=str)

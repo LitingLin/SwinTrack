@@ -1,3 +1,23 @@
+# A very simple query language for json / yaml
+#
+#  following Pytorch nn.Module naming convention
+#  JsonPath or Json Query is too complex for our use cases.
+#
+# examples:
+#   config = {'a': {'b': {'c': 1}}}
+#   get_config(config, 'a.b.c')
+#   >>> 1
+#   mod_config(config, 'a.b.c', 2)
+#   config
+#   >>> {'a': {'b': {'c': 2}}}
+#   config = {'a': [{'b': {'c': 1}}, {'b': {'c': 2}}]}
+#   get_config(config, 'a.0.b.c')
+#   >>> 1
+#   mod_config(config, 'a.0.b.c', 3)
+#   config
+#   >>> {'a': [{'b': {'c': 3}}, {'b': {'c': 2}}]}
+
+
 def mod_config(config, path: str, value):
     paths = path.split('.')
     for sub_path in paths[:-1]:

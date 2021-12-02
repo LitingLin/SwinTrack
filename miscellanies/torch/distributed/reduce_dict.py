@@ -1,3 +1,4 @@
+# https://github.com/pytorch/vision/blob/main/references/detection/utils.py
 import torch
 import torch.distributed as dist
 from miscellanies.torch.distributed import get_world_size

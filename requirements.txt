@@ -1,0 +1,14 @@
+fvcore
+wandb
+tqdm
+numpy
+scipy
+shapely
+torch
+torchvision
+timm
+matplotlib
+pillow
+pyyaml
+configparser
+pyzmq

@@ -33,6 +33,7 @@ def get_sweep_config(args):
 
 
 def prepare_sweep(args, wandb_instance, config):
+    # get the config of this run from wandb server
     if is_main_process():
         this_run_config = wandb_instance.config.as_dict()
     else:

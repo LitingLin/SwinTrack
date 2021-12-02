@@ -12,6 +12,7 @@ from .build_and_run import build_and_run
 
 
 def update_output_dir(args):
+    # redirect output path with run_id
     if args.output_dir is not None:
         args.output_dir = os.path.join(args.output_dir, args.run_id)
         os.makedirs(args.output_dir, exist_ok=True)

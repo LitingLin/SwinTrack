@@ -9,6 +9,7 @@ from core.workaround.numpy import numpy_no_multithreading
 
 
 def spawn_workers(args):
+    # launch pytorch distributed data parallel(DDP) workers
     import sys
     command_args = sys.argv
 
@@ -41,6 +42,8 @@ def spawn_workers(args):
 
 
 def _kill_other_python_processes():
+    # Commonly used in hyper-parameter search, prevent interference from the old run.
+    # Be careful with this since it will kill all python processes other than the current one and its parent(typically the hyper-parameter tunning host process).
     self_pid = os.getpid()
     parent_pid = os.getppid()
     import psutil
@@ -58,6 +61,7 @@ def _kill_other_python_processes():
 
 
 def _remove_ddp_parameter(args):
+    # remove ddp related parameters from args
     del args.distributed_node_rank
     del args.distributed_nnodes
     del args.distributed_nproc_per_node
@@ -65,7 +69,7 @@ def _remove_ddp_parameter(args):
 
 
 def setup_arg_parser():
-    parser = argparse.ArgumentParser('Training script', parents=[get_train_args_parser()])
+    parser = argparse.ArgumentParser('Model training & evaluation entry script', parents=[get_train_args_parser()])
     parser.add_argument('--watch_model_parameters', action='store_true',
                         help='watch the parameters of model using wandb')
     parser.add_argument('--watch_model_gradients', action='store_true',

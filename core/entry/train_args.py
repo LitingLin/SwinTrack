@@ -2,7 +2,7 @@ import argparse
 
 
 def get_train_args_parser():
-    parser = argparse.ArgumentParser('Set transformer tracker parameters', add_help=False)
+    parser = argparse.ArgumentParser(add_help=False)
     parser.add_argument('method_name', type=str, help='Method name')
     parser.add_argument('config_name', type=str, help='Config name')
     parser.add_argument('--output_dir', help='path where to save, empty for no saving')
