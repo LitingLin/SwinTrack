@@ -1,0 +1,225 @@
+version: 4
+
+num_epochs: 300
+
+branch:
+  train:
+    training: true
+    data: "train"
+    runner: "train"
+    logging:
+      display_name: "Train"
+      interval: 10
+      local:
+        header: "Epoch: [{epoch}]"
+      wandb:
+        with_epoch: true
+
+  val:
+    training: false
+    data: "val"
+    runner: "train"
+    epoch_interval: 1
+    logging:
+      interval: 10
+      metric_prefix: "val_"
+      local:
+        header: "Val"
+        epoch_summary:
+          enabled: true
+          method: "mean"
+      wandb:
+        per_iteration_logging:
+          enabled: false
+        per_epoch_logging:
+          enabled: true
+          summary_method: "mean"
+
+  test:
+    training: false
+    data: "test"
+    runner: "test"
+    epoch_interval: -1
+    logging:
+      interval: 10
+      metric_prefix: "test_"
+      local:
+        header: "Test"
+    metrics:
+      enabled: true
+      output_path: "test_metrics"
+      handler:
+        - type: "test_only"
+          name_regex: "got-10k-test"
+          packer:
+            path: "got10k"
+            format: "got10k"
+        - type: "test_only"
+          name_regex: "trackingnet-test"
+          packer:
+            path: "trackingnet"
+            format: "trackingnet"
+        - type: "standard"
+    tracking:
+      type: "SiamFC"
+      curation_parameter_provider:
+        type: "simple"
+        min_object_size: [ 10, 10 ]
+      window_penalty: 0.49
+      cache:
+        template:
+          type: "token"
+          dim: 512
+          length: 144 # 12 * 12
+        image_mean:
+          type: "scalar"
+          dim: 3
+
+data:
+  train:
+    batch_size: 64
+
+    type: "SiamFC"
+
+    source:
+      !include "../../dataset/train.yaml"
+
+    sampler:
+      samples_per_epoch: 131072
+      negative_sample_ratio: 0
+
+      dataset_sampling:
+        type: "random_without_replacement"
+
+      sequence_sampling:
+        type: "Siamese"
+        parameters:
+          frame_range: 100
+          enforce_fine_positive_sample: true
+          enable_adaptive_frame_range: true
+          sampling_method: "interval"
+
+    processor: &processor_configs
+      type: "SiamFC"
+      area_factor:
+        template: 2.0
+        search: 4.0
+      augmentation:
+        scale_jitter_factor:
+          template: 0
+          search: 0.25
+        translation_jitter_factor:
+          template: 0
+          search: 3
+        gray_scale_probability: 0.05
+        color_jitter: 0.4
+
+  val:
+    batch_size: 64
+
+    type: "SiamFC"
+
+    source:
+      !include "../../dataset/val.yaml"
+
+    sampler:
+      samples_per_epoch: 4096
+      negative_sample_ratio: 0
+
+      dataset_sampling:
+        type: "pre_shuffled"
+
+      randomness_controlling:
+        RNG:
+          fixed_seed: 5325
+          reset_per_epoch: true
+
+      sequence_sampling:
+        type: "Siamese"
+        parameters:
+          frame_range: 100
+          enforce_fine_positive_sample: false
+          enable_adaptive_frame_range: true
+          sampling_method: "interval"
+
+    processor: *processor_configs
+
+  test:
+    batch_size: 8
+
+    type: "Sequential"
+
+    source:
+      !include "../../dataset/test_full.yaml"
+
+    sampler:
+      dataset_sampling:
+        type: "run_through"
+
+      randomness_controlling:
+        RNG:
+          fixed_seed: 5361
+          reset_per_epoch: true
+
+    tracking:
+      type: "SiamFC"
+      pre_processing:
+        template:
+          area_factor: 2.0
+        search:
+          area_factor: 4.0
+
+runner:
+  train:
+    type: "default"
+
+    optimizer:
+      type: "AdamW"
+      lr: 5.e-4
+      weight_decay: 1.e-4
+      per_parameter:
+        - name_regex: "^backbone.stages"
+          lr_mult: 0.1
+      clip_max_norm: 0.1
+      lr_scheduler:
+        type: "MultiStepLR"
+        values: [ 1, 0.1 ]
+        milestones: [ 0.7, 1 ]
+        per_iteration: true
+
+        warmup:
+          initial_factor: 0.001
+          length: 0.01
+          method: "linear" # linear or constant
+
+    loss:
+      branches:
+        classification:
+          post_filter:
+            type: "normalize_by_global_num_positive_samples"
+          criterion:
+            varifocal:
+              alpha: 0.75
+              gamma: 2.0
+              iou_weighted: true
+              quality_target:
+                function: "IoU"
+                parameters:
+                  predicted: "bbox"
+                  label: "bounding_box_label"
+              display_name: "loss_varifocal"
+              reduce: "sum"
+              weight: 1.5
+        bbox_regression:
+          pre_filter:
+            type: "positive_sample_only_and_generate_weight_by_classification_score"
+          post_filter:
+            type: "normalize_by_global_sample_weight"
+          criterion:
+            IoU:
+              type: "GIoU"
+              display_name: "loss_iou"
+              reduce: "weighted"
+              weight: 1.5
+  test:
+    type: "default_evaluation"

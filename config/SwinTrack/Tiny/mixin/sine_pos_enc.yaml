@@ -1,0 +1,8 @@
+mixin:
+  fixed:
+    - path: "transformer.position_embedding.enabled"
+      value: true
+    - path: "transformer.untied_position_embedding.absolute.enabled"
+      value: false
+    - path: "transformer.untied_position_embedding.relative.enabled"
+      value: false

@@ -1,0 +1,26 @@
+mixin:
+  fixed:
+    - path: "backbone"
+      value:
+        type: "resnet50"
+        mod: "layer_3_dilation_2"
+        parameters:
+          output_layers: [ "layer3" ]
+    - path: "runs.runner.train.optimizer.per_parameter.0.name_regex"
+      value: "^backbone"
+    - path: "transformer.backbone"
+      value:
+        dim: 1024
+        stage: "layer3"
+        template:
+          shape: [ 14, 14 ]
+        search:
+          shape: [ 28, 28 ]
+    - path: "head.output_protocol.parameters.label.size"
+      value: [ 28, 28 ]
+    - path: "runs.runner.test.tracking.cache.template.length"
+      value: 196
+    - path:
+        - "runs.data.train.batch_size"
+        - "runs.data.val.batch_size"
+      value: 32

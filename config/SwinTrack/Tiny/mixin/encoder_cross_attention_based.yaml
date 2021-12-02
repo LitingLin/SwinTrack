@@ -1,0 +1,6 @@
+mixin:
+  fixed:
+    - path: "transformer.encoder"
+      value:
+        type: "cross_attention_feature_fusion"
+        num_layers: 4

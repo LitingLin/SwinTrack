@@ -1,0 +1,8 @@
+mixin:
+  fixed:
+    - path: "runs.runner.train.loss.branches.classification.criterion"
+      value:
+        binary_cross_entropy:
+          display_name: "loss_bce"
+          reduce: "sum"
+          weight: 1.5

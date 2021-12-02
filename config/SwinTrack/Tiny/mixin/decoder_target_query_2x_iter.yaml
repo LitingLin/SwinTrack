@@ -1,0 +1,15 @@
+mixin:
+  fixed:
+    - path: "transformer.decoder"
+      value:
+        type: "target_query_decoder"
+        num_queries: 1
+        num_layers: 2
+        positional_encoding:
+          type: "learned"
+    - path: "head.output_protocol.parameters.label.size"
+      value: [1, 1]
+    - path: "runs.data.train.sampler.samples_per_epoch"
+      value: 262144
+    - path: "runs.branch.test.tracking.window_penalty"
+      value: 0

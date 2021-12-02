@@ -1,0 +1,2 @@
+class IncompatibleError(RuntimeError):
+    pass

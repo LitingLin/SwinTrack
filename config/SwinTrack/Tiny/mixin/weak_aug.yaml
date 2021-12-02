@@ -1,0 +1,12 @@
+mixin:
+  fixed:
+    - path: "runs.data.train.processor.augmentation"
+      value:
+        scale_jitter_factor:
+          template: 0
+          search: 0.1
+        translation_jitter_factor:
+          template: 0
+          search: 1.5
+        gray_scale_probability: 0.05
+        color_jitter: 0.4

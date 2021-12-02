@@ -1,0 +1,79 @@
+datasets:
+  COCO:
+    type: DET
+    splits:
+      - train
+      - val
+
+  ILSVRC_DET:
+    type: DET
+    splits:
+      - train
+      - val
+
+  OpenImages:
+    type: DET
+    splits:
+      - train
+      - val
+      - test
+
+  ILSVRC_VID:
+    type: MOT
+    splits:
+      - train
+      - val
+
+  MOT17:
+    type: MOT
+    splits:
+      - full
+
+  MOT20:
+    type: MOT
+    splits:
+      - full
+
+  UAV_Benchmark_M:
+    type: MOT
+    splits:
+      - train
+      - val
+
+  GOT10k:
+    type: SOT
+    splits:
+      - train
+      - val
+
+  LaSOT:
+    type: SOT
+    splits:
+      - train
+      - val
+
+  LaSOT_Extension:
+    type: SOT
+    splits:
+      - full
+
+  OTB:
+    type: SOT
+    splits:
+      - full
+
+  TrackingNet:
+    type: SOT
+    splits:
+      - train
+      - test
+
+  UAV_Benchmark_S:
+    type: SOT
+    splits:
+      - full
+
+  ImageNet-21k:
+    type: CLS
+    splits:
+      - full

@@ -1,0 +1,77 @@
+name: "SwinTrack-Base"
+
+version: 1
+
+logging:
+  category: "SwinTrack"
+  tags:
+    - "Swin-Transformer"
+    - "base"
+
+type: "SwinTrack"
+
+data:
+  template_size: [ 112, 112 ]
+  search_size: [ 224, 224 ]
+  imagenet_normalization: true
+  interpolation_mode: "bilinear"
+  bounding_box:
+    format: "CXCYWH"
+    normalization_protocol:
+      interval: "[)"
+      range: [ 0, 1 ]
+
+backbone:
+  type: "swin_transformer"
+  parameters:
+    name: "swin_base_patch4_window7_224_in22k"
+    output_layers: [ 2 ]
+
+transformer:
+  position_embedding:
+    enabled: false
+    type: "sine"
+    with_branch_index: true
+  untied_position_embedding:
+    absolute:
+      enabled: true
+    relative:
+      enabled: true
+  drop_path:
+    rate: 0.1
+    warmup:
+      initial_factor: 0
+      length: 0.5
+      method: "constant"
+      per_iteration: true
+  dim: 512
+  backbone:
+    dim: 512
+    stage: 2
+    template:
+      shape: [ 7, 7 ]
+    search:
+      shape: [ 14, 14 ]
+  num_heads: 8
+  mlp_ratio: 4
+  qkv_bias: true
+  drop_rate: 0
+  attn_drop_rate: 0
+  encoder:
+    type: "concatenation_feature_fusion"
+    num_layers: 8
+  decoder:
+    type: "concatenation_feature_fusion"
+    num_layers: 1
+
+head:
+  output_protocol:
+    type: "ResponseMap"
+    parameters:
+      label:
+        size: [ 14, 14 ]
+  type: "Mlp"
+  parameters:
+    dim: 512
+
+runs: !include "runs.yaml"
