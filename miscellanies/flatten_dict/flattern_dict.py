@@ -1,3 +1,5 @@
+# https://github.com/ianlini/flatten-dict/blob/master/src/flatten_dict/flatten_dict.py
+
 from collections.abc import Mapping
 from .reducers import tuple_reducer, path_reducer, dot_reducer, underscore_reducer
 from .splitters import tuple_splitter, path_splitter, dot_splitter, underscore_splitter

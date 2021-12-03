@@ -1,3 +1,5 @@
+# https://github.com/ianlini/flatten-dict/blob/master/src/flatten_dict/reducers.py
+
 def tuple_reducer(k1, k2):
     if k1 is None:
         return (k2,)

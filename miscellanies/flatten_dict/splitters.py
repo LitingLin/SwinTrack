@@ -1,3 +1,5 @@
+# https://github.com/ianlini/flatten-dict/blob/master/src/flatten_dict/splitters.py
+
 def tuple_splitter(flat_key):
     return flat_key
 
