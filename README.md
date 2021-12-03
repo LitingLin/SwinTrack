@@ -1,6 +1,6 @@
 # SwinTrack
 
-This is the official repo for SwinTrack.
+This is the official repo for ![SwinTrack](https://arxiv.org/abs/2112.00995).
 
 ![banner](https://raw.githubusercontent.com/wiki/LitingLin/SwinTrack/images/banner.svg)
 
@@ -157,3 +157,14 @@ python main.py SwinTrack Tiny --weight_path /path/to/weigth_file.pth --mixin_con
 Our code can evaluate the model on multiple GPUs in parallel, so all parameters above are also available.
 ## Tracking results
 Touch here [google drive](https://drive.google.com/file/d/1JOJY5F2JuYG0Z-uqcP6cNV4ESGs5ek6z/view?usp=sharing)
+## Citation
+```
+@misc{lin2021swintrack,
+      title={SwinTrack: A Simple and Strong Baseline for Transformer Tracking}, 
+      author={Liting Lin and Heng Fan and Yong Xu and Haibin Ling},
+      year={2021},
+      eprint={2112.00995},
+      archivePrefix={arXiv},
+      primaryClass={cs.CV}
+}
+```
