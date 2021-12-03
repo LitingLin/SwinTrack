@@ -43,6 +43,7 @@ class EvaluationHostPipeline:
         self.search_curated_image_cache = None
 
     def on_device_changed(self, device):
+        self.device = device
         if self.template_curated_image_cache is not None:
             self.template_curated_image_cache = self.template_curated_image_cache.to(device)
             self.search_curated_image_cache = self.search_curated_image_cache.to(device)
