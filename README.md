@@ -1,6 +1,6 @@
 # SwinTrack
 
-This is the official repo for ![SwinTrack](https://arxiv.org/abs/2112.00995).
+This is the official repo for [SwinTrack](https://arxiv.org/abs/2112.00995).
 
 ![banner](https://raw.githubusercontent.com/wiki/LitingLin/SwinTrack/images/banner.svg)
 
