@@ -14,6 +14,12 @@ class Mlp(nn.Module):
         self.drop = nn.Dropout(drop)
 
     def forward(self, x):
+        '''
+            Args:
+                x (torch.Tensor): (B, L, C), input tensor
+            Returns:
+                torch.Tensor: (B, L, C), output tensor
+        '''
         x = self.fc1(x)
         x = self.act(x)
         x = self.drop(x)

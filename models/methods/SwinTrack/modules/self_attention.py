@@ -2,10 +2,10 @@ import torch
 import torch.nn as nn
 
 
-class PVTSelfAttention(nn.Module):
+class SelfAttention(nn.Module):
     def __init__(self, dim, num_heads=8, qkv_bias=False, qk_scale=None, attn_drop=0., proj_drop=0.,
                  attn_pos_encoding_only=False):
-        super(PVTSelfAttention, self).__init__()
+        super(SelfAttention, self).__init__()
         assert dim % num_heads == 0, f"dim {dim} should be divided by num_heads {num_heads}."
 
         self.dim = dim
@@ -25,7 +25,16 @@ class PVTSelfAttention(nn.Module):
 
         self.attn_pos_encoding_only = attn_pos_encoding_only
 
-    def forward(self, x, q_ape, k_ape, attn_ape):
+    def forward(self, x, q_ape, k_ape, attn_pos):
+        '''
+            Args:
+                x (torch.Tensor): (B, L, C)
+                q_ape (torch.Tensor | None): (1 or B, L, C), absolute positional encoding for q
+                k_ape (torch.Tensor | None): (1 or B, L, C), absolute positional encoding for k
+                attn_pos (torch.Tensor | None): (1 or B, num_heads, L, L), untied positional encoding
+            Returns:
+                torch.Tensor: (B, L, C)
+        '''
         B, N, C = x.shape
 
         if self.attn_pos_encoding_only:
@@ -42,8 +51,8 @@ class PVTSelfAttention(nn.Module):
 
         attn = q @ k.transpose(-2, -1)
         attn = attn * self.scale
-        if attn_ape is not None:
-            attn = attn + attn_ape
+        if attn_pos is not None:
+            attn = attn + attn_pos
         attn = attn.softmax(dim=-1)
         attn = self.attn_drop(attn)
 

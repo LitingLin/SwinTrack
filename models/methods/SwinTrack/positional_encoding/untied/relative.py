@@ -4,6 +4,10 @@ from timm.models.layers import trunc_normal_
 
 
 def generate_2d_relative_positional_encoding_index(z_shape, x_shape):
+    '''
+        z_shape: (z_h, z_w)
+        x_shape: (x_h, x_w)
+    '''
     z_2d_index_h, z_2d_index_w = torch.meshgrid(torch.arange(z_shape[0]), torch.arange(z_shape[1]))
     x_2d_index_h, x_2d_index_w = torch.meshgrid(torch.arange(x_shape[0]), torch.arange(x_shape[1]))
 
@@ -21,6 +25,10 @@ def generate_2d_relative_positional_encoding_index(z_shape, x_shape):
 
 
 def generate_2d_concatenated_self_attention_relative_positional_encoding_index(z_shape, x_shape):
+    '''
+        z_shape: (z_h, z_w)
+        x_shape: (x_h, x_w)
+    '''
     z_2d_index_h, z_2d_index_w = torch.meshgrid(torch.arange(z_shape[0]), torch.arange(z_shape[1]))
     x_2d_index_h, x_2d_index_w = torch.meshgrid(torch.arange(x_shape[0]), torch.arange(x_shape[1]))
 
@@ -49,6 +57,10 @@ def generate_2d_concatenated_self_attention_relative_positional_encoding_index(z
 
 
 def generate_2d_concatenated_cross_attention_relative_positional_encoding_index(z_shape, x_shape):
+    '''
+        z_shape: (z_h, z_w)
+        x_shape: (x_h, x_w)
+    '''
     z_2d_index_h, z_2d_index_w = torch.meshgrid(torch.arange(z_shape[0]), torch.arange(z_shape[1]))
     x_2d_index_h, x_2d_index_w = torch.meshgrid(torch.arange(x_shape[0]), torch.arange(x_shape[1]))
 
@@ -83,4 +95,10 @@ class RelativePosition2DEncoder(nn.Module):
         trunc_normal_(self.relative_position_bias_table, std=0.02)
 
     def forward(self, attn_rpe_index):
+        '''
+            Args:
+                attn_rpe_index (torch.Tensor): (*), any shape containing indices, max(attn_rpe_index) < embed_size
+            Returns:
+                torch.Tensor: (1, num_heads, *)
+        '''
         return self.relative_position_bias_table[:, attn_rpe_index].unsqueeze(0)

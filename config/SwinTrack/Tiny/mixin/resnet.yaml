@@ -18,7 +18,7 @@ mixin:
           shape: [ 28, 28 ]
     - path: "head.output_protocol.parameters.label.size"
       value: [ 28, 28 ]
-    - path: "runs.runner.test.tracking.cache.template.length"
+    - path: "runs.branch.test.tracking.cache.template.length"
       value: 196
     - path:
         - "runs.data.train.batch_size"

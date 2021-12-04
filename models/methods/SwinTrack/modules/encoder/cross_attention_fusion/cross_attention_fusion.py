@@ -1,6 +1,6 @@
 import torch.nn as nn
-from ...self_attention import PVTSelfAttention
-from ...cross_attention import PVTCrossAttention
+from ...self_attention import SelfAttention
+from ...cross_attention import CrossAttention
 from ...mlp import Mlp
 
 
@@ -11,16 +11,16 @@ class FeatureFusion(nn.Module):
         super(FeatureFusion, self).__init__()
         self.z_norm1 = norm_layer(dim)
         self.x_norm1 = norm_layer(dim)
-        self.z_self_attn = PVTSelfAttention(dim, num_heads, qkv_bias, qk_scale, attn_drop, drop, attn_pos_encoding_only)
-        self.x_self_attn = PVTSelfAttention(dim, num_heads, qkv_bias, qk_scale, attn_drop, drop, attn_pos_encoding_only)
+        self.z_self_attn = SelfAttention(dim, num_heads, qkv_bias, qk_scale, attn_drop, drop, attn_pos_encoding_only)
+        self.x_self_attn = SelfAttention(dim, num_heads, qkv_bias, qk_scale, attn_drop, drop, attn_pos_encoding_only)
 
         self.z_norm2_1 = norm_layer(dim)
         self.z_norm2_2 = norm_layer(dim)
         self.x_norm2_1 = norm_layer(dim)
         self.x_norm2_2 = norm_layer(dim)
 
-        self.z_x_cross_attention = PVTCrossAttention(dim, num_heads, qkv_bias, qk_scale, attn_drop, drop, attn_pos_encoding_only)
-        self.x_z_cross_attention = PVTCrossAttention(dim, num_heads, qkv_bias, qk_scale, attn_drop, drop, attn_pos_encoding_only)
+        self.z_x_cross_attention = CrossAttention(dim, num_heads, qkv_bias, qk_scale, attn_drop, drop, attn_pos_encoding_only)
+        self.x_z_cross_attention = CrossAttention(dim, num_heads, qkv_bias, qk_scale, attn_drop, drop, attn_pos_encoding_only)
 
         mlp_hidden_dim = int(dim * mlp_ratio)
         self.z_norm3 = norm_layer(dim)
@@ -44,13 +44,13 @@ class FeatureFusion(nn.Module):
 
 
 class FeatureFusionEncoder(nn.Module):
-    def __init__(self, feature_fusion_layers, z_abs_pos_enc, x_abs_pos_enc,
+    def __init__(self, feature_fusion_layers, z_pos_enc, x_pos_enc,
                  z_rel_pos_index, x_rel_pos_index, z_x_rel_pos_index, x_z_rel_pos_index,
                  z_rel_pos_bias_table, x_rel_pos_bias_table, z_x_rel_pos_bias_table, x_z_rel_pos_bias_table):
         super(FeatureFusionEncoder, self).__init__()
         self.layers = nn.ModuleList(feature_fusion_layers)
-        self.z_abs_pos_enc = z_abs_pos_enc
-        self.x_abs_pos_enc = x_abs_pos_enc
+        self.z_pos_enc = z_pos_enc
+        self.x_pos_enc = x_pos_enc
         self.register_buffer('z_rel_pos_index', z_rel_pos_index, False)
         self.register_buffer('x_rel_pos_index', x_rel_pos_index, False)
         self.register_buffer('z_x_rel_pos_index', z_x_rel_pos_index, False)
@@ -60,16 +60,31 @@ class FeatureFusionEncoder(nn.Module):
         self.z_x_rel_pos_bias_table = z_x_rel_pos_bias_table
         self.x_z_rel_pos_bias_table = x_z_rel_pos_bias_table
 
-    def forward(self, z, x, z_sine_pos, x_sine_pos, encoder_attn_pos):
-        assert z_sine_pos is None and x_sine_pos is None and encoder_attn_pos is None
-        z_q_pos, z_k_pos = self.z_abs_pos_enc()
-        x_q_pos, x_k_pos = self.x_abs_pos_enc()
+    def forward(self, z, x, z_pos, x_pos):
+        '''
+            Args:
+                z (torch.Tensor): (B, L_z, C), template image feature tokens
+                x (torch.Tensor): (B, L_x, C), search image feature tokens
+                z_pos (torch.Tensor | None): (1 or B, L_z, C), optional positional encoding for z
+                x_pos (torch.Tensor | None): (1 or B, L_x, C), optional positional encoding for x
+            Returns:
+                Tuple[torch.Tensor, torch.Tensor]:
+                    (B, L_z, C): template image feature tokens
+                    (B, L_x, C): search image feature tokens
+        '''
+        # Support untied positional encoding only for simplicity
+        assert z_pos is None and x_pos is None
+
+        # untied positional encoding
+        z_q_pos, z_k_pos = self.z_pos_enc()
+        x_q_pos, x_k_pos = self.x_pos_enc()
         z_self_attn_pos = (z_q_pos @ z_k_pos.transpose(-2, -1)).unsqueeze(0)
         x_self_attn_pos = (x_q_pos @ x_k_pos.transpose(-2, -1)).unsqueeze(0)
 
         z_x_cross_attn_pos = (z_q_pos @ x_k_pos.transpose(-2, -1)).unsqueeze(0)
         x_z_cross_attn_pos = (x_q_pos @ z_k_pos.transpose(-2, -1)).unsqueeze(0)
 
+        # relative positional encoding
         z_self_attn_pos = z_self_attn_pos + self.z_rel_pos_bias_table(self.z_rel_pos_index)
         x_self_attn_pos = x_self_attn_pos + self.x_rel_pos_bias_table(self.x_rel_pos_index)
         z_x_cross_attn_pos = z_x_cross_attn_pos + self.z_x_rel_pos_bias_table(self.z_x_rel_pos_index)

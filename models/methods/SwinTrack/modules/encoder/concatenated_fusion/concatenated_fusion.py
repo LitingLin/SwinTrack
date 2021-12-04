@@ -15,6 +15,17 @@ class ConcatenatedFusion(nn.Module):
         self.rpe_bias_table = rpe_bias_table
 
     def forward(self, z, x, z_pos, x_pos):
+        '''
+            Args:
+                z (torch.Tensor): (B, L_z, C), template image feature tokens
+                x (torch.Tensor): (B, L_x, C), search image feature tokens
+                z_pos (torch.Tensor | None): (1 or B, L_z, C), optional positional encoding for z
+                x_pos (torch.Tensor | None): (1 or B, L_x, C), optional positional encoding for x
+            Returns:
+                Tuple[torch.Tensor, torch.Tensor]:
+                    (B, L_z, C): template image feature tokens
+                    (B, L_x, C): search image feature tokens
+        '''
         concatenated = torch.cat((z, x), dim=1)
 
         attn_pos_enc = None

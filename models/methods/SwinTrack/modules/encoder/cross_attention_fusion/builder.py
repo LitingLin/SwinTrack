@@ -14,7 +14,7 @@ def build_cross_attention_based_encoder(config: dict, drop_path_allocator,
            transformer_config['untied_position_embedding']['relative']['enabled'] == True
 
     encoder_config = transformer_config['encoder']
-    assert encoder_config['type'] == 'feature_fusion'
+    assert encoder_config['type'] == 'cross_attention_feature_fusion'
 
     num_layers = encoder_config['num_layers']
 

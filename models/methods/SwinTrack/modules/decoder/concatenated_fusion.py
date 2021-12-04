@@ -15,6 +15,15 @@ class ConcatenationBasedDecoder(nn.Module):
         self.rpe_bias_table = rpe_bias_table
 
     def forward(self, z, x, z_pos, x_pos):
+        '''
+            Args:
+                z (torch.Tensor): (B, L_z, C)
+                x (torch.Tensor): (B, L_x, C)
+                z_pos (torch.Tensor | None): (1 or B, L_z, C)
+                x_pos (torch.Tensor | None): (1 or B, L_x, C)
+            Returns:
+                torch.Tensor: (B, L_x, C)
+        '''
         concatenated_pos_enc = None
         if z_pos is not None:
             concatenated_pos_enc = torch.cat((z_pos, x_pos), dim=1)

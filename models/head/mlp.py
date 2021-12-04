@@ -30,10 +30,12 @@ class Mlp(nn.Module):
 
 
 class MlpHead(nn.Module):
-    def __init__(self, dim):
+    def __init__(self, dim, W, H):
         super(MlpHead, self).__init__()
         self.cls_mlp = Mlp(dim, out_features=1, num_layers=3)
         self.reg_mlp = Mlp(dim, out_features=4, num_layers=3)
+        self.W = W
+        self.H = H
         self.reset_parameters()
 
     def reset_parameters(self):
@@ -47,23 +49,32 @@ class MlpHead(nn.Module):
                 nn.init.constant_(m.weight, 1.0)
         self.apply(_init_weights)
 
-    def forward(self, x, H, W):
+    def forward(self, x):
+        '''
+            Args:
+                x (torch.Tensor): (B, H * W, C) input feature map
+            Returns:
+                Dict: {
+                    'cls_score' (torch.Tensor): (B, 1, H, W)
+                    'bbox' (torch.Tensor): (B, H, W, 4)
+                }
+        '''
         cls = self.cls_mlp(x)
         reg = self.reg_mlp(x).sigmoid()
 
         class_score = cls
-        N, L, C = class_score.shape
-        class_score = class_score.view(N, H, W, C)
+        B, L, C = class_score.shape
+        class_score = class_score.view(B, self.H, self.W, C)
         class_score = class_score.permute(0, 3, 1, 2)
         class_score = class_score.sigmoid()
 
-        bbox = reg.view(N, H, W, 4)
+        bbox = reg.view(B, self.H, self.W, 4)
 
         return {'class_score': class_score, 'bbox': bbox}
 
 
-def build_single_scale_mlp_head(head_parameters):
-    return MlpHead(head_parameters['dim'])
+def build_single_scale_mlp_head(head_parameters, shape):
+    return MlpHead(head_parameters['dim'], shape[0], shape[1])
 
 
 def build_mlp_head(network_config, with_multi_scale_wrapper):
@@ -71,9 +82,11 @@ def build_mlp_head(network_config, with_multi_scale_wrapper):
     assert head_config['type'] == 'Mlp'
     head_parameters = head_config['parameters']
     if 'scales' not in head_parameters:
-        return build_single_scale_mlp_head(head_parameters)
+        shape = head_config['output_protocol']['parameters']['label']
+        return build_single_scale_mlp_head(head_parameters, shape['size'])
     else:
-        heads = [build_single_scale_mlp_head(single_scale_head_parameters) for single_scale_head_parameters in head_parameters['scales']]
+        shapes = head_config['output_protocol']['parameters']['label']['scales']
+        heads = [build_single_scale_mlp_head(single_scale_head_parameters, shape['size']) for single_scale_head_parameters, shape in zip(head_parameters['scales'], shapes)]
         if with_multi_scale_wrapper:
             from .multi_scale_head import MultiScaleHead
             return MultiScaleHead(heads)

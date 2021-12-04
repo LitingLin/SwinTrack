@@ -6,6 +6,7 @@ mixin:
         num_queries: 1
         num_layers: 2
         positional_encoding:
+          enabled: true
           type: "learned"
     - path: "head.output_protocol.parameters.label.size"
       value: [1, 1]

@@ -60,14 +60,14 @@ def build_swin_track_main_components(config, num_epochs, iterations_per_epoch, e
             event_register.register_iteration_end_hook(drop_path_scheduler)
             event_register.register_epoch_begin_hook(drop_path_scheduler)
 
-    return encoder, decoder, out_norm, backbone_out_stage, backbone_out_stage, z_input_projection, x_input_projection, z_pos_enc, x_pos_enc, x_shape
+    return encoder, decoder, out_norm, backbone_out_stage, backbone_out_stage, z_input_projection, x_input_projection, z_pos_enc, x_pos_enc
 
 
 def build_swin_track(config, load_pretrained, num_epochs, iterations_per_epoch, event_register: EventRegister, has_training_run):
     backbone = build_backbone(config, load_pretrained)
-    encoder, decoder, out_norm, z_backbone_out_stage, x_backbone_out_stage, z_input_projection, x_input_projection, z_pos_enc, x_pos_enc, x_shape = \
+    encoder, decoder, out_norm, z_backbone_out_stage, x_backbone_out_stage, z_input_projection, x_input_projection, z_pos_enc, x_pos_enc = \
         build_swin_track_main_components(config, num_epochs, iterations_per_epoch, event_register, has_training_run)
     head = build_head(config)
 
-    return SwinTrack(backbone, encoder, decoder, out_norm, head, z_backbone_out_stage, x_backbone_out_stage, z_input_projection, x_input_projection, z_pos_enc, x_pos_enc, (x_shape[1], x_shape[0])), \
+    return SwinTrack(backbone, encoder, decoder, out_norm, head, z_backbone_out_stage, x_backbone_out_stage, z_input_projection, x_input_projection, z_pos_enc, x_pos_enc), \
            build_siamfc_pseudo_data_generator(config, event_register)

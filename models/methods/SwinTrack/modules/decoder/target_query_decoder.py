@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
-from ..self_attention import PVTSelfAttention
-from ..cross_attention import PVTCrossAttention
+from ..self_attention import SelfAttention
+from ..cross_attention import CrossAttention
 from ..mlp import Mlp
 from timm.models.layers import trunc_normal_
 
@@ -11,17 +11,26 @@ class TargetQueryDecoderLayer(nn.Module):
                  drop_path=nn.Identity(), act_layer=nn.GELU, norm_layer=nn.LayerNorm):
         super(TargetQueryDecoderLayer, self).__init__()
         self.norm_1 = norm_layer(dim)
-        self.self_attn = PVTSelfAttention(dim, num_heads, qkv_bias, qk_scale, attn_drop, drop)
+        self.self_attn = SelfAttention(dim, num_heads, qkv_bias, qk_scale, attn_drop, drop)
         self.norm_2_query = norm_layer(dim)
         self.norm_2_memory = norm_layer(dim)
-        self.cross_attn = PVTCrossAttention(dim, num_heads, qkv_bias, qk_scale, attn_drop, drop)
+        self.cross_attn = CrossAttention(dim, num_heads, qkv_bias, qk_scale, attn_drop, drop)
         self.norm_3 = norm_layer(dim)
         mlp_hidden_dim = int(dim * mlp_ratio)
         self.mlp = Mlp(dim, hidden_features=mlp_hidden_dim, act_layer=act_layer, drop=drop)
 
         self.drop_path = drop_path
 
-    def forward(self, query, memory, query_pos, memory_pos):   # Assuming query and memory has been normalized
+    def forward(self, query, memory, query_pos, memory_pos):
+        '''
+            Args:
+                query (torch.Tensor): (B, num_queries, C)
+                memory (torch.Tensor): (B, L, C)
+                query_pos (torch.Tensor): (1 or B, num_queries, C)
+                memory_pos (torch.Tensor): (1 or B, L, C)
+            Returns:
+                torch.Tensor: (B, num_queries, C)
+        '''
         query = query + self.drop_path(self.self_attn(self.norm_1(query), query_pos, query_pos, None))
         query = query + self.drop_path(self.cross_attn(self.norm_2_query(query), self.norm_2_memory(memory), query_pos, memory_pos, None))
         query = query + self.drop_path(self.mlp(self.norm_3(query)))
@@ -38,7 +47,15 @@ class TargetQueryDecoderBlock(nn.Module):
         self.z_pos_encoder = z_pos_encoder
         self.x_pos_encoder = x_pos_encoder
 
-    def forward(self, z, x):
+    def forward(self, z, x, z_pos=None, x_pos=None):
+        '''
+            Args:
+                z (torch.Tensor): (B, L_z, C)
+                x (torch.Tensor): (B, L_x, C)
+            Returns:
+                torch.Tensor: (B, num_queries, C)
+        '''
+        assert z_pos is None and x_pos is None
         z_pos = self.z_pos_encoder().unsqueeze(0)
         x_pos = self.x_pos_encoder().unsqueeze(0)
         feat = torch.cat((z, x), dim=1)
@@ -52,9 +69,10 @@ class TargetQueryDecoderBlock(nn.Module):
         return target
 
 
-def build_target_query_decoder(decoder_config, drop_path_allocator,
+def build_target_query_decoder(config, drop_path_allocator,
                                dim, num_heads, mlp_ratio, qkv_bias, drop_rate, attn_drop_rate,
                                z_shape, x_shape):
+    decoder_config = config['transformer']['decoder']
     num_layers = decoder_config['num_layers']
     num_queries = decoder_config['num_queries']
 

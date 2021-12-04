@@ -7,8 +7,7 @@ class SwinTrack(nn.Module):
     def __init__(self, backbone, encoder, decoder, out_norm, head,
                  z_backbone_out_stage, x_backbone_out_stage,
                  z_input_projection, x_input_projection,
-                 z_pos_enc, x_pos_enc,
-                 x_shape):
+                 z_pos_enc, x_pos_enc):
         super(SwinTrack, self).__init__()
         self.backbone = backbone
         self.encoder = encoder
@@ -23,8 +22,6 @@ class SwinTrack(nn.Module):
 
         self.z_pos_enc = z_pos_enc
         self.x_pos_enc = x_pos_enc
-
-        self.x_shape = x_shape
 
         self.reset_parameters()
 
@@ -55,6 +52,32 @@ class SwinTrack(nn.Module):
         return self._track(z_feat, x_feat)
 
     def forward(self, z, x, z_feat=None):
+        """
+        Combined entry point for training and inference (include initialization and tracking).
+            Args:
+                z (torch.Tensor | None)
+                x (torch.Tensor | None)
+                z_feat (torch.Tensor | None)
+
+            Training:
+                Input:
+                    z: (B, H_z * W_z, 3), template image
+                    x: (B, H_x * W_x, 3), search image
+                Return:
+                    Dict: Output of the head, like {'class_score': torch.Tensor(B, num_classes, H, W), 'bbox': torch.Tensor(B, H, W, 4)}.
+            Inference:
+                Initialization:
+                    Input:
+                        z: (B, H_z * W_z, 3)
+                    Return:
+                        torch.Tensor: (B, H_z * W_z, dim)
+                Tracking:
+                    Input:
+                        z_feat: (B, H_z * W_z, dim)
+                        x: (B, H_x * W_x, 3)
+                    Return:
+                        Dict: Same as training.
+            """
         if z_feat is None:
             z_feat = self.initialize(z)
         if x is not None:
@@ -88,4 +111,4 @@ class SwinTrack(nn.Module):
         decoder_feat = self.decoder(z_feat, x_feat, z_pos, x_pos)
         decoder_feat = self.out_norm(decoder_feat)
 
-        return self.head(decoder_feat, *self.x_shape)
+        return self.head(decoder_feat)
