@@ -157,7 +157,9 @@ python main.py SwinTrack Tiny --weight_path /path/to/weigth_file.pth --mixin_con
 ```
 Our code can evaluate the model on multiple GPUs in parallel, so all parameters above are also available.
 ## Tracking results
-Touch here [google drive](https://drive.google.com/file/d/1JOJY5F2JuYG0Z-uqcP6cNV4ESGs5ek6z/view?usp=sharing)
+Raw results: [google drive](https://drive.google.com/file/d/1JOJY5F2JuYG0Z-uqcP6cNV4ESGs5ek6z/view?usp=sharing)
+
+[PyTracking](https://github.com/visionml/pytracking) compatible: [google drive](https://drive.google.com/file/d/1zCzuXbT0Vdas52yuDRAZIJ-k4MmtUf1w/view?usp=sharing)
 ## Citation
 ```
 @misc{lin2021swintrack,
