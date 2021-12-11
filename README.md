@@ -106,33 +106,33 @@ wandb login
 ### Train and evaluate on a single GPU
 ```shell
 # Tiny
-python main.py SwinTrack Tiny --output_dir /path/to/output -W $num_dataloader_workers
+python main.py SwinTrack Tiny --output_dir /path/to/output --num_workers $num_dataloader_workers
 
 # Base
-python main.py SwinTrack Base --output_dir /path/to/output -W $num_dataloader_workers
+python main.py SwinTrack Base --output_dir /path/to/output --num_workers $num_dataloader_workers
 
 # Base-384
-python main.py SwinTrack Base-384 --output_dir /path/to/output -W $num_dataloader_workers
+python main.py SwinTrack Base-384 --output_dir /path/to/output --num_workers $num_dataloader_workers
 ```
-```--output_dir``` is optional, ```-W``` defaults to 4.
+```--output_dir``` is optional, ```--num_workers``` defaults to 4.
 
 note: our code performs evaluation automatically when training is done, output is saved in ```/path/to/output/test_metrics```.
 ### Train and evaluate on multiple GPUs using DDP
 ```shell
 # Tiny
-python main.py SwinTrack Tiny --distributed_nproc_per_node $num_gpus --distributed_do_spawn_workers --output_dir /path/to/output -W $num_dataloader_workers
+python main.py SwinTrack Tiny --distributed_nproc_per_node $num_gpus --distributed_do_spawn_workers --output_dir /path/to/output --num_workers $num_dataloader_workers
 ```
 ### Train and evaluate on multiple nodes with multiple GPUs using DDP
 ```shell
 # Tiny
-python main.py SwinTrack Tiny --master_address $master_address --distributed_node_rank $node_rank distributed_nnodes $num_nodes --distributed_nproc_per_node $num_gpus --distributed_do_spawn_workers --output_dir /path/to/output -W $num_dataloader_workers 
+python main.py SwinTrack Tiny --master_address $master_address --distributed_node_rank $node_rank distributed_nnodes $num_nodes --distributed_nproc_per_node $num_gpus --distributed_do_spawn_workers --output_dir /path/to/output --num_workers $num_dataloader_workers 
 ```
 ### Train and evaluate with ```run.sh``` helper script
 ```shell
 # Train and evaluate on all GPUs
 ./run.sh SwinTrack Tiny --output_dir /path/to/output -W $num_dataloader_workers
 # Train and evaluate on multiple nodes
-NODE_RANK=$NODE_INDEX NUM_NODES=$NUM_NODES MASTER_ADDRESS=$MASTER_ADDRESS DATE_WITH_TIME=$DATE_WITH_TIME ./run.sh SwinTrack Tiny --output_dir /path/to/output -W $num_dataloader_workers 
+NODE_RANK=$NODE_INDEX NUM_NODES=$NUM_NODES MASTER_ADDRESS=$MASTER_ADDRESS DATE_WITH_TIME=$DATE_WITH_TIME ./run.sh SwinTrack Tiny --output_dir /path/to/output --num_workers $num_dataloader_workers 
 ```
 ## Ablation study
 The ablation study can be done by applying a small patch to the main config file.
